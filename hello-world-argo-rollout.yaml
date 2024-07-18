@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-hello-world-argo-depl
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: react-hello-world-argo
+  template:
+    metadata:
+      labels:
+        app: react-hello-world-argo
+    spec:
+      containers:
+      - name: react-hello-world-argo-app
+        image: somnathbm/react-hello-world-argo:yellow
+        ports:
+        - containerPort: 80
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: hello-world-app-rollout
+spec:
+  replicas: 2
+  analysis:
+    successfulRunHistoryLimit: 5
+    unsuccessfulRunHistoryLimit: 5
+  
+  selector:
+    matchLabels:
+      app: react-hello-world-argo
+  
+  workloadRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: rreact-hello-world-argo-depl
+    scaleDown: progressively
+    
+  strategy:
+    canary:
+      maxSurge: "25%"
+      maxUnavailable: 0
+      steps:
+      - setWeight: 10
+      - pause:
+          duration: 5m
+      - setWeight: 20
+      - pause:
+          duration: 5m
+      - setWeight: 30
+      - pause:
+          duration: 5m
+      - setWeight: 50
+        pause:
+          duration: 5m
+      - setWeight: 100
