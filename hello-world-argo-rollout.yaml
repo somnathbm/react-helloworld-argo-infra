@@ -35,24 +35,26 @@ spec:
   workloadRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: rreact-hello-world-argo-depl
+    name: react-hello-world-argo-depl
     scaleDown: progressively
     
   strategy:
     canary:
       maxSurge: "25%"
       maxUnavailable: 0
+      canaryService: hello-world-app-rollout-canary
+      stableService: hello-world-app-rollout-stable
       steps:
       - setWeight: 10
       - pause:
-          duration: 5m
+          duration: 10s
       - setWeight: 20
       - pause:
-          duration: 5m
+          duration: 20s
       - setWeight: 30
       - pause:
-          duration: 5m
+          duration: 30s
       - setWeight: 50
         pause:
-          duration: 5m
+          duration: 60s
       - setWeight: 100

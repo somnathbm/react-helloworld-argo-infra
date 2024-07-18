@@ -1,0 +1,17 @@
+name: Manifest change trigger
+run-name: Manifest change trigger
+
+on:
+  repository-dispatch:
+    types: [react-hello-test]
+
+jobs:
+  manifest-change:
+    if: ${{github.event.client_payload.passed}}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout the repo
+      uses: actions/checkout@v4
+    - name: Modify the manifest file
+      run: |
+        sed -i"" -E "s/:.*/:${{github.event.client_payload.selectedColor}}/i" hello-world-argo-rollout.yaml
