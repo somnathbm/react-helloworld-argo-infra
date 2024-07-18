@@ -2,7 +2,7 @@ name: Manifest change trigger
 run-name: Manifest change trigger
 
 on:
-  repository-dispatch:
+  repository_dispatch:
     types: [react-hello-test]
 
 jobs:
