@@ -93,14 +93,11 @@ spec:
           role: stable
       steps:
       - setWeight: 10
-      - pause:
-          duration: 10s
+      - pause: { duration: 10s }
       - setWeight: 20
-      - pause:
-          duration: 20s
+      - pause: { duration: 20s }
       - setWeight: 30
-      - pause:
-          duration: 30s
+      - pause: { duration: 30s }
       - setWeight: 50
-        pause:
-          duration: 60s
+      - pause: { duration: 60s }
+      - setWeight: 100
