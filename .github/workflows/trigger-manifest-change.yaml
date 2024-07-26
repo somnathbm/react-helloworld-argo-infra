@@ -12,6 +12,13 @@ jobs:
     steps:
     - name: Checkout the repo
       uses: actions/checkout@v4
+    - name: Setup git config
+      run: |
+        git config --global user.email "somnathbm0@gmail.com"
+        git config --global user.name "somnathbm"
     - name: Modify the manifest file
       run: |
-        sed -i"" -E "s/:.*/:${{github.event.client_payload.selectedColor}}/i" hello-world-argo-rollout.yaml
+        sed -i"" -E "s/somnathbm/react-hello-world-argo:.*/somnathbm/react-hello-world-argo:${{github.event.client_payload.selectedColor}}/i" hello-world-argo-rollout.yaml
+        git add .
+        git commit -m "changed the image to ${{github.event.client_payload.selectedColor}}"
+        git push

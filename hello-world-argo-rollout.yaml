@@ -1,22 +1,28 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Service
 metadata:
-  name: react-hello-world-argo-depl
+  name: react-hello-world-stable-svc
 spec:
-  replicas: 0
   selector:
-    matchLabels:
-      app: react-hello-world-argo
-  template:
-    metadata:
-      labels:
-        app: react-hello-world-argo
-    spec:
-      containers:
-      - name: react-hello-world-argo-app
-        image: somnathbm/react-hello-world-argo:yellow
-        ports:
-        - containerPort: 80
+    app: react-hello-world-argo
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: react-hello-world-canary-svc
+spec:
+  selector:
+    app: react-hello-world-argo
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
@@ -32,18 +38,33 @@ spec:
     matchLabels:
       app: react-hello-world-argo
   
-  workloadRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: react-hello-world-argo-depl
-    scaleDown: progressively
+  template:
+    metadata:
+      labels:
+        app: react-hello-world-argo
+    spec:
+      containers:
+      - name: react-hello-world-argo-app
+        image: somnathbm/react-hello-world-argo:yellow
+        ports:
+        - containerPort: 80
     
   strategy:
     canary:
       maxSurge: "25%"
       maxUnavailable: 0
-      canaryService: hello-world-app-rollout-canary
-      stableService: hello-world-app-rollout-stable
+      canaryService: react-hello-world-canary-svc
+      stableService: react-hello-world-stable-svc
+      canaryMetadata:
+        annotations:
+          role: canary
+        labels:
+          role: canary
+      stableMetadata:
+        annotations:
+          role: stable
+        labels:
+          role: stable
       steps:
       - setWeight: 10
       - pause:
@@ -58,3 +79,26 @@ spec:
         pause:
           duration: 60s
       - setWeight: 100
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: react-argo-hello-world
+  namespace: argocd
+  lebels:
+    name: react-argo-hello-world
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/somnathbm/react-helloworld-argo-infra.git
+    targetRevision: HEAD
+    path: .
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: reacthelloargo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
