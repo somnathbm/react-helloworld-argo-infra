@@ -3,7 +3,7 @@ kind: Application
 metadata:
   name: react-argo-hello-world
   namespace: argocd
-  lebels:
+  labels:
     name: react-argo-hello-world
 spec:
   project: default
