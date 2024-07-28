@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: react-argo-hello-world
+  namespace: argocd
+  labels:
+    name: react-argo-hello-world
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/somnathbm/react-helloworld-argo-infra.git
+    targetRevision: HEAD
+    path: canary-rollout
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: reacthelloargo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
