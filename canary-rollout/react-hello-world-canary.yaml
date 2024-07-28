@@ -48,7 +48,7 @@ spec:
     spec:
       containers:
       - name: react-hello-world-argo-app
-        image: somnathbm/react-hello-world-argo:yellow
+        image: somnathbm/react-hello-world-argo:red
         ports:
         - containerPort: 80
     
